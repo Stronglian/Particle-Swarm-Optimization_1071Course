@@ -70,7 +70,7 @@ class PSO:
         #
         self.boolFirst_P = np.array([True for i in range(self.particleNum)])
         self.boolFirst_G = True
-        #
+        # 
         self.folderName = "output_s"+str(self.randSeed)+"_"+str(self.k_time_max)
         if os.path.exists(self.folderName) is False:
             os.mkdir(self.folderName)
@@ -81,7 +81,7 @@ class PSO:
         #print((x_min + (x_max - x_min) * np.random.rand(particleNum, 1))[:, 0])
         self.x_Position[:, :, 0] = (self.x_min + self.x_range * np.random.rand(self.particleNum, 2))
         self.x_Velocity[:, :, 0] = (self.v_min + (self.v_max - self.v_min) * np.random.rand(self.particleNum, 2))
-        MakeFigure(self.P_Best_x[:, :, 0], 0)
+        MakeFigure(self.P_Best_x[:, :, 0], 0, imgFolder = self.folderName)
         
         for k in range(self.k_time_max-1):
             for i in range(self.particleNum):
