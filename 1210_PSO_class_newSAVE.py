@@ -10,13 +10,15 @@ PLT:
     https://matplotlib.org/api/_as_gen/matplotlib.pyplot.plot.html
 gif:
     https://ezgif.com/maker
+    https://stackoverflow.com/questions/753190/programmatically-generate-video-or-animated-gif-in-python
+    http://imageio.github.io/
 """
 import numpy as np
 import matplotlib.pyplot as plt
 import os
-
+import imageio
 #%%
-def MakeFigure(plotList, number, figSize=None, imgFolder = "TMP_s1200_250"):
+def MakeFigure(plotList, number, figSize=None, imgFolder = "TMP"):
 #    print(plotList)
     x = plotList[:, 0]
     y = plotList[:, 1]
@@ -34,9 +36,21 @@ def MakeFigure(plotList, number, figSize=None, imgFolder = "TMP_s1200_250"):
     plt.close(fig)
     return
 
+def MakeForderImgToGif(imgFolder):
+#    print(imgFolder.rsplit('/',1))
+    # name sort
+    imgNameList = np.array(os.listdir(imgFolder))
+    imgNameList = imgNameList[np.argsort([int(na.split(".")[0]) for na in imgNameList ], axis = 0)]
+    # 
+    with imageio.get_writer(imgFolder+ '.gif', mode='I') as writer:
+        for filename in imgNameList:
+            image = imageio.imread(imgFolder + "/" + filename)
+            writer.append_data(image)
+    return
+
 #%%
 class PSO:
-    def __init__(self, seed = None, boolSaveFig = True):
+    def __init__(self, particleNum = 15, time_max = 50, seed = None, boolSaveFig = True):
         if seed is None :
             self.randSeed = None
         else: 
@@ -47,7 +61,7 @@ class PSO:
         self.__boolSaveFig = boolSaveFig
         self.targetFunc = lambda x: 3*x[0]**2 - 2*x[0]*x[1] + 3*x[1]**2 - x[0] -x[1]
         #
-        self.particleNum = 15 #M
+        self.particleNum = particleNum # M
         self.x_max =  5
         self.x_min = -5
         self.x_range = self.x_max - self.x_min
@@ -55,19 +69,19 @@ class PSO:
         self.v_min = -self.x_range /4.0
         #
 #        self.k_time = 0 
-        self.k_time_max = 50
-        #
+        self.k_time_max = time_max
+        # 
         self.x_Position = np.zeros((self.particleNum, TWO, self.k_time_max))
         self.x_Velocity = np.zeros((self.particleNum, TWO, self.k_time_max))
         self.P_Best_x   = np.zeros((self.particleNum, TWO, 1)) # personal best
         self.P_Best_fit = np.zeros((self.particleNum, 1)) # personal best
         self.G_Best_x   = np.zeros((TWO)) # global best
         self.G_Best_fit = np.zeros((1)) # global best
-        #
-        self.omaga = np.ones((self.particleNum, TWO)) * 1
+        # 變異係數
+        self.omaga = np.ones((self.particleNum, TWO)) * 1   #動量
         self.c1 = np.ones((self.particleNum, TWO))    * 0.8
         self.c2 = np.ones((self.particleNum, TWO))    * 0.2
-        #
+        # 第一項執行控制
         self.boolFirst_P = np.array([True for i in range(self.particleNum)])
         self.boolFirst_G = True
         # 
@@ -117,13 +131,16 @@ class PSO:
         print("global best:")
         print("fitness:", self.G_Best_fit[0])
         print("point:",   self.G_Best_x)
+        # 輸出 gif
+        if self.__boolSaveFig:
+            MakeForderImgToGif(pso.folderName)
         return
 if __name__ == "__main__":
     import time
     print("START\n")
     _startTime = time.time()
     
-    pso = PSO(seed = None, boolSaveFig = False)
+    pso = PSO(particleNum = 50, time_max = 250, seed = 1200, boolSaveFig = True)
     pso.FLOW()
     pso.ShowResault()
     
