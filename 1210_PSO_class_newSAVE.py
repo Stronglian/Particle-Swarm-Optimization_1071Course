@@ -48,6 +48,12 @@ def MakeForderImgToGif(imgFolder):
             writer.append_data(image)
     return
 
+def CleanGifFolder(imgFolder):
+    imgNameList = np.array(os.listdir(imgFolder))
+    for na in imgNameList:
+        os.remove(imgFolder + "/" + na)
+    os.removedirs(imgFolder)
+    return
 #%%
 class PSO:
     def __init__(self, particleNum = 15, time_max = 50, seed = None, boolSaveFig = True):
@@ -124,7 +130,7 @@ class PSO:
                 MakeFigure(self.P_Best_x[:, :, 0], k+1, imgFolder = self.folderName)
         # 6. 動量(omaga)下降
             if self.omaga[0, 0] > 0.01:
-                self.omaga -= 0.01
+                self.omaga -= 0.01 
         return
     
     def ShowResault(self):
@@ -133,7 +139,7 @@ class PSO:
         print("point:",   self.G_Best_x)
         # 輸出 gif
         if self.__boolSaveFig:
-            MakeForderImgToGif(pso.folderName)
+            MakeForderImgToGif(self.folderName)
         return
 if __name__ == "__main__":
     import time
@@ -146,5 +152,8 @@ if __name__ == "__main__":
     
     end_position = pso.x_Position
     end_velocity = pso.x_Velocity
+    
+    if True: #清空 gif 輸出
+        CleanGifFolder(pso.folderName)
     
     print("\n\nEND", "It cost", time.time() - _startTime, "sec.")
